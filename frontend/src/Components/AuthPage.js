@@ -322,7 +322,7 @@ export default function AuthPage() {
 
             <div className="d-flex gap-2" style={{ marginBottom: 'var(--spacing-xl)' }}>
               <button
-                className={`btn ${activeTab === "login" ? 'btn-primary' : 'btn-secondary'} btn-lg`}
+                className={`btn ${activeTab === "login" ? 'btn-primary' : 'btn-secondary'} btn-lg auth-tab-button`}
                 onClick={() => setActiveTab("login")}
                 style={{ flex: 1, minWidth: 120, borderRadius: '2em', boxShadow: '0 2px 8px rgba(26,42,108,0.10)', fontWeight: 600, transition: 'all 0.2s' }}
               >
@@ -330,7 +330,7 @@ export default function AuthPage() {
                 <span>Login</span>
               </button>
               <button
-                className={`btn ${activeTab === "register" ? 'btn-primary' : 'btn-secondary'} btn-lg`}
+                className={`btn ${activeTab === "register" ? 'btn-primary' : 'btn-secondary'} btn-lg auth-tab-button`}
                 onClick={() => setActiveTab("register")}
                 style={{ flex: 1, minWidth: 120, borderRadius: '2em', boxShadow: '0 2px 8px rgba(26,42,108,0.10)', fontWeight: 600, transition: 'all 0.2s' }}
               >

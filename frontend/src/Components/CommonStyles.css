@@ -156,6 +156,15 @@
   transform: translateY(-3px);
 }
 
+/* Auth Page Login/Register Button Hover Styles */
+.auth-tab-button:hover {
+  color: transparent !important;
+  background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .btn-danger {
   background: var(--danger-color);
   color: var(--background-white);
