@@ -165,7 +165,8 @@
   -webkit-text-fill-color: transparent;
 }
 
-.auth-tab-button:hover svg {
+.auth-tab-button:hover svg,
+.auth-tab-button:hover i {
   color: transparent !important;
   background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
   -webkit-background-clip: text;
