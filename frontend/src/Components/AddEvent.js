@@ -88,10 +88,17 @@ const AddEvent = () => {
     }
 
     // Expiry date validation
-    if (eventData.expiryDate && eventData.date && eventData.expiryDate < eventData.date) {
-      setError('Expiry date cannot be before the event date.');
-      setLoading(false);
-      return;
+    if (eventData.expiryDate && eventData.date) {
+      if (eventData.expiryDate > eventData.date) {
+        setError('Registration Expiry Date cannot be after the Event Date.');
+        setLoading(false);
+        return;
+      }
+      if (eventData.expiryDate < today) {
+        setError('Registration Expiry Date cannot be in the past.');
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -271,7 +278,8 @@ const AddEvent = () => {
                   name="expiryDate"
                   value={eventData.expiryDate}
                   onChange={handleChange}
-                  min={eventData.date || today}
+                  min={today}
+                  max={eventData.date || ''}
                   placeholder="When should registration close? (Default: Event date)"
                 />
                 <small className="text-muted">
