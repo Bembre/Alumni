@@ -33,14 +33,47 @@ const AlumniRegister = () => {
 
     try {
       // Validation
-      if (!formData.email || !formData.password || !formData.confirmPassword || !formData.name || !formData.rollNumber) {
-        setError('Please fill in all fields');
+      if (!formData.name || !/^[A-Za-z ]+$/.test(formData.name)) {
+        setError('Name is required and must only contain letters and spaces.');
         setIsSubmitting(false);
         return;
       }
-
+      if (!formData.email) {
+        setError('Email is required.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+        setError('Please enter a valid email address.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.rollNumber) {
+        setError('Roll number is required.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.password) {
+        setError('Password is required.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.confirmPassword) {
+        setError('Please confirm your password.');
+        setIsSubmitting(false);
+        return;
+      }
       if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
+        setError('Passwords do not match.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (formData.password.length < 6 ||
+          !/[A-Z]/.test(formData.password) ||
+          !/[a-z]/.test(formData.password) ||
+          !/[0-9]/.test(formData.password) ||
+          !/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+        setError('Password must be at least 6 characters and include 1 uppercase, 1 lowercase, 1 number, and 1 special character.');
         setIsSubmitting(false);
         return;
       }

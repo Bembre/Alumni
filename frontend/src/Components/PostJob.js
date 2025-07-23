@@ -61,15 +61,49 @@ const PostJob = () => {
     setSuccess('');
     setIsSubmitting(true);
     // Validation
-    if (!formData.title || !formData.name || !formData.location || !formData.type || !formData.salary || !formData.description || !formData.link || !formData.expireDate) {
-      setError('Please fill all required fields.');
+    if (!formData.title) {
+      setError('Job title is required.');
       setIsSubmitting(false);
       return;
     }
-    // Expire date validation
+    if (!formData.name) {
+      setError('Company name is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.location) {
+      setError('Location is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.type) {
+      setError('Job type is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.salary) {
+      setError('Salary is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.description) {
+      setError('Job description is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.link) {
+      setError('Application link is required.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.expireDate) {
+      setError('Application deadline is required.');
+      setIsSubmitting(false);
+      return;
+    }
     const today = new Date().toISOString().split('T')[0];
     if (formData.expireDate < today) {
-      setError('Expire date cannot be in the past.');
+      setError('Application deadline cannot be in the past.');
       setIsSubmitting(false);
       return;
     }

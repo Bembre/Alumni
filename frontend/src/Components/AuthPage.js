@@ -49,19 +49,44 @@ export default function AuthPage() {
 
     // Validate form based on active tab
     if (activeTab === "login") {
-      if (!loginForm.email || !loginForm.password) {
-        setError("Please fill in all fields");
+      if (!loginForm.email) {
+        setError("Email is required.");
+        setLoading(false);
+        return;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(loginForm.email)) {
+        setError("Please enter a valid email address.");
+        setLoading(false);
+        return;
+      }
+      if (!loginForm.password) {
+        setError("Password is required.");
         setLoading(false);
         return;
       }
     } else if (activeTab === "register") {
-      if (!registerForm.email || !registerForm.password || !registerForm.confirmPassword) {
-        setError("Please fill in all fields");
+      if (!registerForm.email) {
+        setError("Email is required.");
+        setLoading(false);
+        return;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(registerForm.email)) {
+        setError("Please enter a valid email address.");
+        setLoading(false);
+        return;
+      }
+      if (!registerForm.password) {
+        setError("Password is required.");
+        setLoading(false);
+        return;
+      }
+      if (!registerForm.confirmPassword) {
+        setError("Please confirm your password.");
         setLoading(false);
         return;
       }
       if (registerForm.password !== registerForm.confirmPassword) {
-        setError("Passwords do not match");
+        setError("Passwords do not match.");
         setLoading(false);
         return;
       }

@@ -24,8 +24,18 @@ const AddDonation = () => {
     setLoading(true);
     setError(null);
     // Validation
-    if (!form.title || !form.description || !form.amount) {
-      setError('Please fill all required fields.');
+    if (!form.title) {
+      setError('Title is required.');
+      setLoading(false);
+      return;
+    }
+    if (!form.description) {
+      setError('Description is required.');
+      setLoading(false);
+      return;
+    }
+    if (!form.amount) {
+      setError('Amount is required.');
       setLoading(false);
       return;
     }

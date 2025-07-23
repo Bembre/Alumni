@@ -61,21 +61,36 @@ const AddEvent = () => {
     setSuccess(false);
 
     // Basic validation for common fields
-    if (!eventData.title.trim() || !eventData.description.trim() || !eventData.date || !eventData.time) {
-      setError('Please fill all required fields (Title, Description, Date, and Time).');
+    if (!eventData.title.trim()) {
+      setError('Event title is required.');
+      setLoading(false);
+      return;
+    }
+    if (!eventData.description.trim()) {
+      setError('Event description is required.');
+      setLoading(false);
+      return;
+    }
+    if (!eventData.date) {
+      setError('Event date is required.');
+      setLoading(false);
+      return;
+    }
+    if (!eventData.time) {
+      setError('Event time is required.');
       setLoading(false);
       return;
     }
 
     // Validation for event type specific fields
     if (eventType === 'webinar' && !eventData.link.trim()) {
-      setError('Please provide a webinar link.');
+      setError('Webinar link is required.');
       setLoading(false);
       return;
     }
 
-    if (['reunion', 'knowledge_sharing', 'expert_lecture'].includes(eventType) && !eventData.venue.trim()) {
-      setError('Please provide a venue for the event.');
+    if (["reunion", "knowledge_sharing", "expert_lecture"].includes(eventType) && !eventData.venue.trim()) {
+      setError('Venue is required for this event type.');
       setLoading(false);
       return;
     }
