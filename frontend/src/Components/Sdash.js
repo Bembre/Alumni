@@ -24,48 +24,22 @@ const decodeToken = (token) => {
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [profilePic, setProfilePic] = useState(null);
-  const [experience, setExperience] = useState([{
-    type: 'Internship',
-    company: '',
-    position: '',
-    duration: '',
-    description: ''
-  }]);
-  const [skills, setSkills] = useState([]);
-  const [education, setEducation] = useState([
-    {
-      type: '10th',
-      institution: '',
-      board: '',
-      year: '',
-      grade: '',
-      percentage: ''
-    },
-    {
-      type: '12th',
-      institution: '',
-      board: '',
-      year: '',
-      grade: '',
-      percentage: ''
-    }
-  ]);
-  const [email, setEmail] = useState("");
-  const [isEditing, setIsEditing] = useState(true);
-  const [projects, setProjects] = useState([{
-    title: '',
-    description: '',
-    technologies: '',
-    duration: '',
-    link: ''
-  }]);
-  const [achievements, setAchievements] = useState([{
-    type: 'sports',
-    title: '',
-    description: '',
-    date: '',
-    organization: ''
-  }]);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    gender: '',
+    department: 'Information Technology',
+    course: 'B. Tech. Information Technology',
+    currentYear: '',
+    studentId: '',
+    phone: '',
+    altPhone: '',
+    currentAddress: '',
+    permanentAddress: '',
+    profilePic: null
+  });
 
   const location = useLocation();
 
@@ -80,7 +54,7 @@ const StudentDashboard = () => {
 
     // Set email from user data first
     if (user.email) {
-      setEmail(user.email);
+      setFormData(prev => ({ ...prev, email: user.email }));
     }
 
     // Check if we have profile data from navigation state
@@ -103,31 +77,10 @@ const StudentDashboard = () => {
         profilePic: data.profile || null
       });
       setProfilePic(data.profile);
-      setExperience(data.experience || []);
-      setSkills(data.skillset || data.skills || []);
-      setEducation(data.education || []);
-      setIsEditing(true);
     } else {
       fetchUserData();
     }
   }, [navigate, location]);
-
-  const [formData, setFormData] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    dob: '',
-    gender: '',
-    department: 'Information Technology',
-    course: 'B. Tech. Information Technology',
-    currentYear: '',
-    studentId: '',
-    phone: '',
-    altPhone: '',
-    currentAddress: '',
-    permanentAddress: '',
-    profilePic: null
-  });
 
   const currentYear = new Date().getFullYear();
   const maxDob = new Date(currentYear - 20, 0, 1).toISOString().split("T")[0];
@@ -151,16 +104,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleChange = (setter, list, index, field, value) => {
-    const updated = [...list];
-    if (field === 'skill') {
-      updated[index] = value; // For skills, just store the string value directly
-    } else {
-      updated[index] = { ...updated[index], [field]: value };
-    }
-    setter(updated);
-  };
-
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
     // Name validation
@@ -176,14 +119,6 @@ const StudentDashboard = () => {
       if (!/^\d{0,10}$/.test(value)) return;
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddField = (setter, list, template) => setter([...list, template]);
-
-  const handleRemoveField = (setter, list, index) => {
-    const updatedList = [...list];
-    updatedList.splice(index, 1);
-    setter(updatedList);
   };
 
   const handleSubmit = async (e) => {
@@ -209,7 +144,7 @@ const StudentDashboard = () => {
       }
 
       const payload = {
-        email: email,
+        email: user.email, // Use user's email from localStorage
         department: formData.department,
         course: formData.course,
         first_name: formData.firstName,
@@ -224,24 +159,7 @@ const StudentDashboard = () => {
         current_address: formData.currentAddress,
         permanent_address: formData.permanentAddress,
         profile: profilePic || null,
-        experience: experience.filter(exp => exp.company && exp.position && exp.duration),
-        skillset: skills.filter(s => typeof s === 'string' && s.trim() !== ''),
-        education: education.filter(edu => edu.institution && edu.board && edu.year && edu.grade && edu.percentage),
-        projects: projects.filter(p => p.title || p.description).map(proj => ({
-          title: proj.title,
-          description: proj.description,
-          technologies: proj.technologies || '',
-          duration: proj.duration || '',
-          link: proj.link || ''
-        })),
-        achievements: achievements.filter(a => a.title || a.description).map(ach => ({
-          type: ach.type || 'sports',
-          title: ach.title,
-          description: ach.description,
-          date: ach.date || '',
-          organization: ach.organization || ''
-        })),
-        profileCompleted: true
+        profileCompleted: true // Mark profile as completed
       };
 
       console.log('Submitting student profile payload:', payload);
@@ -257,7 +175,6 @@ const StudentDashboard = () => {
         // Update localStorage with new profile photo and completion status
         const updatedUser = { ...user, profileCompleted: true, profile: response.data.profile };
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        setIsEditing(false);
         // Redirect to home page after successful profile completion
         navigate('/home');
       }
@@ -268,53 +185,39 @@ const StudentDashboard = () => {
   };
 
   const handleAddSkill = () => {
-    if (skills.length === 0 || skills[skills.length - 1].trim() !== '') {
-      setSkills([...skills, '']);
-    }
+    // This function is no longer needed as skills are removed
   };
 
   const handleAddProject = () => {
-    setProjects([...projects, { title: '', description: '', technologies: '', duration: '', link: '' }]);
+    // This function is no longer needed as projects are removed
   };
 
   const handleAddAchievement = () => {
-    setAchievements([...achievements, { type: 'sports', title: '', description: '', date: '', organization: '' }]);
+    // This function is no longer needed as achievements are removed
   };
 
   const handleRemoveSkill = (index) => {
-    if (skills.length > 1) {
-      const updatedSkills = [...skills];
-      updatedSkills.splice(index, 1);
-      setSkills(updatedSkills);
-    }
+    // This function is no longer needed as skills are removed
   };
 
   const handleRemoveProject = (index) => {
-    setProjects(projects.filter((_, i) => i !== index));
+    // This function is no longer needed as projects are removed
   };
 
   const handleRemoveAchievement = (index) => {
-    setAchievements(achievements.filter((_, i) => i !== index));
+    // This function is no longer needed as achievements are removed
   };
 
   const handleSkillChange = (index, value) => {
-    const updatedSkills = [...skills];
-    updatedSkills[index] = value;
-    setSkills(updatedSkills);
+    // This function is no longer needed as skills are removed
   };
 
   const handleProjectChange = (index, field, value) => {
-    if (!isEditing) return;
-    setProjects(projects.map((project, i) =>
-      i === index ? { ...project, [field]: value } : project
-    ));
+    // This function is no longer needed as projects are removed
   };
 
   const handleAchievementChange = (index, field, value) => {
-    if (!isEditing) return;
-    setAchievements(achievements.map((achievement, i) =>
-      i === index ? { ...achievement, [field]: value } : achievement
-    ));
+    // This function is no longer needed as achievements are removed
   };
 
   const fetchUserData = async () => {
@@ -333,9 +236,9 @@ const StudentDashboard = () => {
       
       // Ensure email is available from either source
       if (data.email) {
-        setEmail(data.email);
+        setFormData(prev => ({ ...prev, email: data.email }));
       } else if (userEmail) {
-        setEmail(userEmail);
+        setFormData(prev => ({ ...prev, email: userEmail }));
       } else {
         toast.error('Email not found. Please try logging in again.');
         return;
@@ -362,46 +265,6 @@ const StudentDashboard = () => {
           permanentAddress: '',
           profilePic: null
         });
-        setExperience([{
-          type: 'Internship',
-          company: '',
-          position: '',
-          duration: '',
-          description: ''
-        }]);
-        setSkills(['']);
-        setEducation([
-          {
-            type: '10th',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          },
-          {
-            type: '12th',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          }
-        ]);
-        setProjects([{
-          title: '',
-          description: '',
-          technologies: '',
-          duration: '',
-          link: ''
-        }]);
-        setAchievements([{
-          type: 'sports',
-          title: '',
-          description: '',
-          date: '',
-          organization: ''
-        }]);
       } else {
         // Use existing data for returning users
         setFormData({
@@ -420,50 +283,8 @@ const StudentDashboard = () => {
           permanentAddress: data.permanent_address || '',
           profilePic: data.profile || null
         });
-        setProfilePic(data.profile || null);
-        setExperience(data.experience || [{
-          type: 'Internship',
-          company: '',
-          position: '',
-          duration: '',
-          description: ''
-        }]);
-        setSkills(Array.isArray(data.skillset) ? data.skillset : (Array.isArray(data.skills) ? data.skills : ['']));
-        setEducation(data.education || [
-          {
-            type: '10th',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          },
-          {
-            type: '12th',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          }
-        ]);
-        setProjects(data.projects || [{
-          title: '',
-          description: '',
-          technologies: '',
-          duration: '',
-          link: ''
-        }]);
-        setAchievements(data.achievements || [{
-          type: 'sports',
-          title: '',
-          description: '',
-          date: '',
-          organization: ''
-        }]);
       }
       
-      setIsEditing(false);
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error(error.response?.data?.error || error.response?.data?.details || error.message || 'An unexpected error occurred.');
@@ -705,7 +526,7 @@ const StudentDashboard = () => {
                     <input
                       type="email"
                       className="form-control"
-                      value={email}
+                      value={formData.email}
                       readOnly
                     />
                   </div>
@@ -773,525 +594,6 @@ const StudentDashboard = () => {
                     />
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Experience Section */}
-            <div className="card mb-4">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  <FaBriefcase className="me-2" />
-                  Experience
-                </h5>
-              </div>
-              <div className="card-body">
-                {experience.map((exp, index) => (
-                  <div key={index} className="mb-4 p-3 border rounded">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="mb-0">Experience {index + 1}</h6>
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleRemoveField(setExperience, experience, index)}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Type</label>
-                        <select
-                          className="form-select"
-                          value={exp.type}
-                          onChange={(e) => handleChange(setExperience, experience, index, 'type', e.target.value)}
-                        >
-                          <option value="">Select Type</option>
-                          <option value="Internship">Internship</option>
-                          <option value="Work Experience">Work Experience</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Company</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={exp.company}
-                          onChange={(e) => handleChange(setExperience, experience, index, 'company', e.target.value)}
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Position</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={exp.position}
-                          onChange={(e) => handleChange(setExperience, experience, index, 'position', e.target.value)}
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Duration</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="years"
-                          value={exp.years || ''}
-                          onChange={e => handleChange(setExperience, experience, index, 'years', e.target.value.replace(/[^\d]/g, ''))}
-                          min={0}
-                          max={50}
-                          placeholder="Years"
-                        />
-                        <span>Year(s)</span>
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="months"
-                          value={exp.months || ''}
-                          onChange={e => handleChange(setExperience, experience, index, 'months', e.target.value.replace(/[^\d]/g, ''))}
-                          min={0}
-                          max={11}
-                          placeholder="Months"
-                        />
-                        <span>Month(s)</span>
-                      </div>
-                      <div className="col-12">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          value={exp.description}
-                          onChange={(e) => handleChange(setExperience, experience, index, 'description', e.target.value)}
-                          rows="3"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => handleAddField(setExperience, experience, {
-                    type: '',
-                    company: '',
-                    position: '',
-                    duration: '',
-                    description: ''
-                  })}
-                >
-                  <FaPlus className="me-2" />
-                  Add Experience
-                </button>
-              </div>
-            </div>
-
-            {/* Skills Section */}
-            <div className="card mb-4">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  <FaCode className="me-2" />
-                  Skill Set
-                </h5>
-              </div>
-              <div className="card-body">
-                {(Array.isArray(skills) && skills.length > 0 ? skills : ['']).map((skill, index) => (
-                  <div key={index} className="mb-3">
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={typeof skill === 'string' ? skill : ''}
-                        onChange={e => {
-                          const updatedSkills = [...skills];
-                          updatedSkills[index] = e.target.value;
-                          setSkills(updatedSkills);
-                        }}
-                        placeholder="Enter a skill"
-                      />
-                      {skills.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() => {
-                            const updatedSkills = skills.filter((_, i) => i !== index);
-                            setSkills(updatedSkills.length > 0 ? updatedSkills : ['']);
-                          }}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => handleAddSkill()}
-                >
-                  <FaPlus className="me-2" />
-                  Add Skill
-                </button>
-              </div>
-            </div>
-
-            {/* Education Section */}
-            <div className="card mb-4">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  <FaGraduationCap className="me-2" />
-                  Education Details
-                </h5>
-              </div>
-              <div className="card-body">
-                {education.map((edu, index) => (
-                  <div key={index} className="mb-4 p-3 border rounded">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="mb-0">Education {index + 1}</h6>
-                      {index >= 2 && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleRemoveField(setEducation, education, index)}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Type *</label>
-                        <select
-                          className="form-select"
-                          value={edu.type}
-                          onChange={(e) => handleChange(setEducation, education, index, 'type', e.target.value)}
-                          required
-                        >
-                          <option value="">Select Type</option>
-                          <option value="10th">10th</option>
-                          <option value="12th">12th</option>
-                          <option value="Graduation">Graduation</option>
-                          <option value="Post Graduation">Post Graduation</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Institution *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={edu.institution}
-                          onChange={(e) => handleChange(setEducation, education, index, 'institution', e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Board/University *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={edu.board}
-                          onChange={(e) => handleChange(setEducation, education, index, 'board', e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Passing Year *</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={edu.year}
-                          onChange={(e) => handleChange(setEducation, education, index, 'year', e.target.value)}
-                          required
-                          min="2000"
-                          max={new Date().getFullYear()}
-                          placeholder="YYYY"
-                          onKeyDown={e => { if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault(); }}
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Grade *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={edu.grade}
-                          onChange={(e) => handleChange(setEducation, education, index, 'grade', e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Percentage *</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={edu.percentage}
-                          onChange={(e) => handleChange(setEducation, education, index, 'percentage', e.target.value)}
-                          required
-                          min="0"
-                          max="100"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => handleAddField(setEducation, education, {
-                    type: '',
-                    institution: '',
-                    board: '',
-                    year: '',
-                    grade: '',
-                    percentage: ''
-                  })}
-                >
-                  <FaPlus className="me-2" />
-                  Add Education
-                </button>
-              </div>
-            </div>
-
-            {/* Projects Section */}
-            <div className="card mb-4">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  <FaProjectDiagram className="me-2" />
-                  Projects
-                </h5>
-              </div>
-              <div className="card-body">
-                {(Array.isArray(projects) && projects.length > 0 ? projects : [{ title: '', description: '', technologies: '', duration: '', link: '' }]).map((project, index) => (
-                  <div key={index} className="mb-4 p-3 border rounded">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="mb-0">Project {index + 1}</h6>
-                      {projects.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => {
-                            const newProjects = projects.filter((_, i) => i !== index);
-                            setProjects(newProjects.length > 0 ? newProjects : [{ title: '', description: '', technologies: '', duration: '', link: '' }]);
-                          }}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Title</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={project.title || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], title: e.target.value };
-                            setProjects(newProjects);
-                          }}
-                          placeholder="Project Title"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Technologies</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={project.technologies || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], technologies: e.target.value };
-                            setProjects(newProjects);
-                          }}
-                          placeholder="Technologies Used"
-                        />
-                      </div>
-                      <div className="col-12">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          value={project.description || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], description: e.target.value };
-                            setProjects(newProjects);
-                          }}
-                          placeholder="Project Description"
-                          rows="3"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Duration</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="years"
-                          value={project.years || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], years: e.target.value.replace(/[^\d]/g, '') };
-                            setProjects(newProjects);
-                          }}
-                          min={0}
-                          max={50}
-                          placeholder="Years"
-                        />
-                        <span>Year(s)</span>
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="months"
-                          value={project.months || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], months: e.target.value.replace(/[^\d]/g, '') };
-                            setProjects(newProjects);
-                          }}
-                          min={0}
-                          max={11}
-                          placeholder="Months"
-                        />
-                        <span>Month(s)</span>
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Project Link</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={project.link || ''}
-                          onChange={e => {
-                            const newProjects = [...projects];
-                            newProjects[index] = { ...newProjects[index], link: e.target.value };
-                            setProjects(newProjects);
-                          }}
-                          placeholder="Project Link"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => setProjects([...projects, { title: '', description: '', technologies: '', duration: '', link: '' }])}
-                >
-                  <FaPlus className="me-2" />
-                  Add Project
-                </button>
-              </div>
-            </div>
-
-            {/* Achievements Section */}
-            <div className="card mb-4">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  <FaTrophy className="me-2" />
-                  Achievements
-                </h5>
-              </div>
-              <div className="card-body">
-                {(Array.isArray(achievements) && achievements.length > 0 ? achievements : [{ type: 'sports', title: '', description: '', date: '', organization: '' }]).map((achievement, index) => (
-                  <div key={index} className="mb-4 p-3 border rounded">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="mb-0">Achievement {index + 1}</h6>
-                      {achievements.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => {
-                            const newAchievements = achievements.filter((_, i) => i !== index);
-                            setAchievements(newAchievements.length > 0 ? newAchievements : [{ type: 'sports', title: '', description: '', date: '', organization: '' }]);
-                          }}
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
-                    </div>
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Type</label>
-                        <select
-                          className="form-select"
-                          value={achievement.type || ''}
-                          onChange={e => {
-                            const newAchievements = [...achievements];
-                            newAchievements[index] = { ...newAchievements[index], type: e.target.value };
-                            setAchievements(newAchievements);
-                          }}
-                        >
-                          <option value="">Select Type</option>
-                          <option value="sports">Sports</option>
-                          <option value="awards">Awards</option>
-                          <option value="academic">Academic</option>
-                          <option value="events">Events</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Title</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={achievement.title || ''}
-                          onChange={e => {
-                            const newAchievements = [...achievements];
-                            newAchievements[index] = { ...newAchievements[index], title: e.target.value };
-                            setAchievements(newAchievements);
-                          }}
-                          placeholder="Achievement Title"
-                        />
-                      </div>
-                      <div className="col-12">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          value={achievement.description || ''}
-                          onChange={e => {
-                            const newAchievements = [...achievements];
-                            newAchievements[index] = { ...newAchievements[index], description: e.target.value };
-                            setAchievements(newAchievements);
-                          }}
-                          placeholder="Description"
-                          rows="3"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Date</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          name="date"
-                          value={achievement.date || ''}
-                          onChange={e => {
-                            const newAchievements = [...achievements];
-                            newAchievements[index] = { ...newAchievements[index], date: e.target.value };
-                            setAchievements(newAchievements);
-                          }}
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Organization</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={achievement.organization || ''}
-                          onChange={e => {
-                            const newAchievements = [...achievements];
-                            newAchievements[index] = { ...newAchievements[index], organization: e.target.value };
-                            setAchievements(newAchievements);
-                          }}
-                          placeholder="Organization"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => setAchievements([...achievements, { type: 'sports', title: '', description: '', date: '', organization: '' }])}
-                >
-                  <FaPlus className="me-2" />
-                  Add Achievement
-                </button>
               </div>
             </div>
 

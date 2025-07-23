@@ -10,49 +10,9 @@ import { profileService } from '../services/api';
 const AlumniDashboard = () => {
   const navigate = useNavigate();
   const [profilePic, setProfilePic] = useState(null);
-  const [experience, setExperience] = useState([{
-    company: '',
-    position: '',
-    duration: '',
-    description: ''
-  }]);
-  const [skills, setSkills] = useState([""]);
-  const [education, setEducation] = useState([
-    {
-      type: '12th',
-      institution: '',
-      board: '',
-      year: '',
-      grade: '',
-      percentage: ''
-    },
-    {
-      type: 'Graduation',
-      institution: '',
-      board: '',
-      year: '',
-      grade: '',
-      percentage: ''
-    }
-  ]);
-  const [email, setEmail] = useState("");
   const [userData, setUserData] = useState(null);
-  const [profileCompleted, setProfileCompleted] = useState(false);
+  const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(true);
-  const [projects, setProjects] = useState([{
-    title: '',
-    description: '',
-    technologies: '',
-    duration: '',
-    link: ''
-  }]);
-  const [achievements, setAchievements] = useState([{
-    type: 'sports',
-    title: '',
-    description: '',
-    date: '',
-    organization: ''
-  }]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,9 +34,6 @@ const AlumniDashboard = () => {
       setUserData(data);
       setEmail(data.email);
       setProfilePic(data.profile);
-      setExperience(data.experience || []);
-      setSkills(data.skillset || data.skills || [""]);
-      setEducation(data.education || []);
       setIsEditing(true);
     } else {
       fetchUserData();
@@ -148,34 +105,8 @@ const AlumniDashboard = () => {
         setUserData(data);
         setEmail(data.email || userEmail); // Set email with fallback to token
         setProfilePic(data.profile || null);
-        setExperience(data.experience || [{
-          company: '',
-          position: '',
-          duration: '',
-          description: ''
-        }]);
-        setSkills(data.skillset || data.skills || [""]);
-        setEducation(data.education || [
-          {
-            type: '12th',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          },
-          {
-            type: 'Graduation',
-            institution: '',
-            board: '',
-            year: '',
-            grade: '',
-            percentage: ''
-          }
-        ]);
       }
       
-      setProfileCompleted(data.profileCompleted || false);
     } catch (error) {
       console.error("Error fetching profile:", error);
       if (error.response?.status === 404) {
@@ -212,7 +143,6 @@ const AlumniDashboard = () => {
           ]
         });
         setEmail(userEmail); // Set email from token
-        setProfileCompleted(false);
         setIsEditing(true); // Automatically enable editing for new users
       } else {
         let errorMessage = error.response?.data?.error || error.response?.data?.details || error.message || 'An unexpected error occurred.';
@@ -301,17 +231,17 @@ const AlumniDashboard = () => {
         ...userData,
         email,
         profile: profilePic || null,
-        experience: Array.isArray(experience) ? experience.filter(exp => exp && exp.company && exp.position) : [],
-        skillset: Array.isArray(skills) ? skills.filter(s => s && typeof s === 'string' && s.trim() !== '') : [],
-        education: Array.isArray(education) ? education.filter(edu => edu && edu.institution && edu.board) : [],
-        projects: Array.isArray(projects) ? projects.filter(p => p && (p.title || p.description)).map(proj => ({
+        experience: Array.isArray(userData.experience) ? userData.experience.filter(exp => exp && exp.company && exp.position) : [],
+        skillset: Array.isArray(userData.skillset) ? userData.skillset.filter(s => s && typeof s === 'string' && s.trim() !== '') : [],
+        education: Array.isArray(userData.education) ? userData.education.filter(edu => edu && edu.institution && edu.board) : [],
+        projects: Array.isArray(userData.projects) ? userData.projects.filter(p => p && (p.title || p.description)).map(proj => ({
           title: proj.title || '',
           description: proj.description || '',
           technologies: proj.technologies || '',
           duration: proj.duration || '',
           link: proj.link || ''
         })) : [],
-        achievements: Array.isArray(achievements) ? achievements.filter(a => a && (a.title || a.description)).map(ach => ({
+        achievements: Array.isArray(userData.achievements) ? userData.achievements.filter(a => a && (a.title || a.description)).map(ach => ({
           type: ach.type || 'sports',
           title: ach.title || '',
           description: ach.description || '',
@@ -340,7 +270,6 @@ const AlumniDashboard = () => {
           };
           localStorage.setItem('user', JSON.stringify(updatedUser));
           
-          setProfileCompleted(true);
           setIsEditing(false);
           toast.success('Profile updated successfully!');
           navigate('/home');
@@ -379,61 +308,61 @@ const AlumniDashboard = () => {
 
   const handleAddSkill = () => {
     if (!isEditing) return;
-    setSkills([...skills, '']);
+    setUserData((prev) => ({ ...prev, skillset: [...prev.skillset, ''] }));
   };
 
   const handleRemoveSkill = (index) => {
     if (!isEditing) return;
-    setSkills(skills.filter((_, i) => i !== index));
+    setUserData((prev) => ({ ...prev, skillset: prev.skillset.filter((_, i) => i !== index) }));
   };
 
   const handleSkillChange = (index, value) => {
     if (!isEditing) return;
-    setSkills(skills.map((skill, i) => (i === index ? value : skill)));
+    setUserData((prev) => ({ ...prev, skillset: prev.skillset.map((skill, i) => (i === index ? value : skill)) }));
   };
 
   const handleAddProject = () => {
     if (!isEditing) return;
-    setProjects([...projects, { title: '', description: '', technologies: '', duration: '', link: '' }]);
+    setUserData((prev) => ({ ...prev, projects: [...prev.projects, { title: '', description: '', technologies: '', duration: '', link: '' }] }));
   };
 
   const handleRemoveProject = (index) => {
     if (!isEditing) return;
-    setProjects(projects.filter((_, i) => i !== index));
+    setUserData((prev) => ({ ...prev, projects: prev.projects.filter((_, i) => i !== index) }));
   };
 
   const handleProjectChange = (index, field, value) => {
     if (!isEditing) return;
-    setProjects(projects.map((project, i) =>
+    setUserData((prev) => ({ ...prev, projects: prev.projects.map((project, i) =>
       i === index ? { ...project, [field]: value } : project
-    ));
+    ) }));
   };
 
   const handleAddAchievement = () => {
     if (!isEditing) return;
-    setAchievements([...achievements, { type: 'sports', title: '', description: '', date: '', organization: '' }]);
+    setUserData((prev) => ({ ...prev, achievements: [...prev.achievements, { type: 'sports', title: '', description: '', date: '', organization: '' }] }));
   };
 
   const handleRemoveAchievement = (index) => {
     if (!isEditing) return;
-    setAchievements(achievements.filter((_, i) => i !== index));
+    setUserData((prev) => ({ ...prev, achievements: prev.achievements.filter((_, i) => i !== index) }));
   };
 
   const handleAchievementChange = (index, field, value) => {
     if (!isEditing) return;
-    setAchievements(achievements.map((achievement, i) =>
+    setUserData((prev) => ({ ...prev, achievements: prev.achievements.map((achievement, i) =>
       i === index ? { ...achievement, [field]: value } : achievement
-    ));
+    ) }));
   };
 
   // Add this function to sync all form states with userData
   const syncFormStatesWithUserData = () => {
     if (userData) {
-      setSkills(userData.skillset || userData.skills || [""]);
-      setProjects(userData.projects || [{ title: '', description: '', technologies: '', duration: '', link: '' }]);
-      setAchievements(userData.achievements || [{ type: 'sports', title: '', description: '', date: '', organization: '' }]);
-      setExperience(userData.experience || [{ company: '', position: '', duration: '', description: '' }]);
-      setEducation(userData.education || [
+      setUserData((prev) => ({ ...prev, skillset: userData.skillset || userData.skills || [""] }));
+      setUserData((prev) => ({ ...prev, projects: userData.projects || [{ title: '', description: '', technologies: '', duration: '', link: '' }] }));
+      setUserData((prev) => ({ ...prev, achievements: userData.achievements || [{ type: 'sports', title: '', description: '', date: '', organization: '' }] }));
+      setUserData((prev) => ({ ...prev, experience: userData.experience || [{ company: '', position: '', duration: '', description: '' }] }));
+      setUserData((prev) => ({ ...prev, education: userData.education || [
         {
           type: '12th',
           institution: '',
@@ -450,7 +379,7 @@ const AlumniDashboard = () => {
           grade: '',
           percentage: ''
         }
-      ]);
+      ] }));
     }
   };
 
@@ -508,20 +437,20 @@ const AlumniDashboard = () => {
 
   // Add function to handle adding education
   const handleAddEducation = () => {
-    setEducation([...education, {
+    setUserData((prev) => ({ ...prev, education: [...prev.education, {
       type: 'Post Graduation',
       institution: '',
       board: '',
       year: '',
       grade: '',
       percentage: ''
-    }]);
+    }] }));
   };
 
   // Add function to handle removing education
   const handleRemoveEducation = (index) => {
-    if (education[index].type === 'Post Graduation') {
-      setEducation(education.filter((_, i) => i !== index));
+    if (userData.education[index].type === 'Post Graduation') {
+      setUserData((prev) => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }));
     }
   };
 
@@ -543,7 +472,7 @@ const AlumniDashboard = () => {
               <p className="text-muted">Complete your profile to get started</p>
             </div>
 
-            {!profileCompleted && (
+            {!userData.profileCompleted && (
               <div className="alert alert-info mb-4">
                 <h5 className="alert-heading">Please complete your profile</h5>
                 <p>Fill out all required fields (marked with *) to complete your profile. This information will be visible to other alumni and students.</p>
@@ -746,76 +675,6 @@ const AlumniDashboard = () => {
                 </div>
               </div>
 
-              {/* Professional Information Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="mb-0">
-                    <FaBriefcase className="me-2" />
-                    Professional Information
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label">Current Company *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="current_company"
-                        value={safeValue(userData.current_company)}
-                        onChange={handleFieldChange}
-                        required
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Designation *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="designation"
-                        value={safeValue(userData.designation)}
-                        onChange={handleFieldChange}
-                        required
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Current Location *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="current_location"
-                        value={safeValue(userData.current_location)}
-                        onChange={handleFieldChange}
-                        placeholder="e.g., Mumbai, Maharashtra"
-                        required
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Joined Date *</label>
-                      <input
-                        type="date"
-                        className="form-control"
-                        name="joined_date"
-                        value={userData.joined_date ? new Date(userData.joined_date).toISOString().split('T')[0] : ''}
-                        onChange={handleFieldChange}
-                        min={userData.passing_year ? new Date(userData.passing_year).toISOString().split('T')[0] : ''}
-                        max={new Date().toISOString().split('T')[0]}
-                        required
-                        disabled={!isEditing}
-                      />
-                      {error && error.includes('Joining date') && (
-                        <div className="text-danger mt-1">
-                          {error}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Contact Information Section */}
               <div className="card mb-4">
                 <div className="card-header bg-primary text-white">
@@ -880,446 +739,6 @@ const AlumniDashboard = () => {
                       />
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Experience Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="mb-0">
-                    <FaBriefcase className="me-2" />
-                    Work Experience
-                  </h5>
-                </div>
-                <div className="card-body">
-                  {experience.map((exp, index) => (
-                    <div key={index} className="mb-4 p-3 border rounded">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h6 className="mb-0">Experience {index + 1}</h6>
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleRemoveField(setExperience, experience, index)}
-                            disabled={!isEditing}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                      <div className="row g-3">
-                        <div className="col-md-6">
-                          <label className="form-label">Company</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={safeValue(exp.company)}
-                            onChange={(e) => handleChange(setExperience, experience, index, 'company', e.target.value)}
-                            placeholder="Company name"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Position</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={safeValue(exp.position)}
-                            onChange={(e) => handleChange(setExperience, experience, index, 'position', e.target.value)}
-                            placeholder="Job position"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Duration</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="years"
-                            value={exp.years || ''}
-                            onChange={e => handleChange(setExperience, experience, index, 'years', e.target.value.replace(/[^\d]/g, ''))}
-                            min={0}
-                            max={50}
-                            placeholder="Years"
-                            disabled={!isEditing}
-                          />
-                          <span>Year(s)</span>
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="months"
-                            value={exp.months || ''}
-                            onChange={e => handleChange(setExperience, experience, index, 'months', e.target.value.replace(/[^\d]/g, ''))}
-                            min={0}
-                            max={11}
-                            placeholder="Months"
-                            disabled={!isEditing}
-                          />
-                          <span>Month(s)</span>
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Description</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={safeValue(exp.description)}
-                            onChange={(e) => handleChange(setExperience, experience, index, 'description', e.target.value)}
-                            placeholder="Job description"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      onClick={() => handleAddField(setExperience, experience, {
-                        company: '',
-                        position: '',
-                        duration: '',
-                        description: ''
-                      })}
-                    >
-                      <FaPlus className="me-2" />
-                      Add Experience
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Skills Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="mb-0">
-                    <FaCode className="me-2" />
-                    Skill Set
-                  </h5>
-                </div>
-                <div className="card-body">
-                  {skills.map((skill, index) => (
-                    <div key={index} className="mb-3">
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={safeValue(skill)}
-                          onChange={(e) => handleSkillChange(index, e.target.value)}
-                          placeholder="Enter a skill"
-                          disabled={!isEditing}
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() => handleRemoveSkill(index)}
-                          disabled={!isEditing}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      onClick={() => handleAddSkill()}
-                    >
-                      <FaPlus className="me-2" />
-                      Add Skill
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Education Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Education Details</h5>
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-light btn-sm"
-                      onClick={handleAddEducation}
-                    >
-                      <FaPlus /> Add Education
-                    </button>
-                  )}
-                </div>
-                <div className="card-body">
-                  {education.map((edu, index) => (
-                    <div key={index} className="mb-3 p-3 border rounded">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="mb-0">Education {index + 1}</h6>
-                        {isEditing && edu.type === 'Post Graduation' && (
-                          <button
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleRemoveEducation(index)}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                      <div className="row g-3">
-                        <div className="col-md-6">
-                          <label className="form-label">Type</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={edu.type}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Institution</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={edu.institution}
-                            onChange={(e) => handleChange(setEducation, education, index, 'institution', e.target.value)}
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Board</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={edu.board}
-                            onChange={(e) => handleChange(setEducation, education, index, 'board', e.target.value)}
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Year</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={edu.year}
-                            onChange={(e) => handleChange(setEducation, education, index, 'year', e.target.value)}
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Grade</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={edu.grade}
-                            onChange={(e) => handleChange(setEducation, education, index, 'grade', e.target.value)}
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Percentage</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={edu.percentage}
-                            onChange={(e) => handleChange(setEducation, education, index, 'percentage', e.target.value)}
-                            disabled={!isEditing}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Projects Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="mb-0">
-                    <FaProjectDiagram className="me-2" />
-                    Projects
-                  </h5>
-                </div>
-                <div className="card-body">
-                  {projects.map((project, index) => (
-                    <div key={index} className="mb-4 p-3 border rounded">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h6 className="mb-0">Project {index + 1}</h6>
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleRemoveProject(index)}
-                            disabled={!isEditing}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                      <div className="row g-3">
-                        <div className="col-md-6">
-                          <label className="form-label">Title</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={project.title}
-                            onChange={(e) => handleProjectChange(index, 'title', e.target.value)}
-                            placeholder="Project Title"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Technologies</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={project.technologies}
-                            onChange={(e) => handleProjectChange(index, 'technologies', e.target.value)}
-                            placeholder="Technologies Used"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-12">
-                          <label className="form-label">Description</label>
-                          <textarea
-                            className="form-control"
-                            value={project.description}
-                            onChange={(e) => handleProjectChange(index, 'description', e.target.value)}
-                            placeholder="Project Description"
-                            rows="3"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Duration</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={project.duration}
-                            onChange={(e) => handleProjectChange(index, 'duration', e.target.value)}
-                            placeholder="Duration"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Project Link</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={project.link}
-                            onChange={(e) => handleProjectChange(index, 'link', e.target.value)}
-                            placeholder="Project Link"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      onClick={() => handleAddProject()}
-                    >
-                      <FaPlus className="me-2" />
-                      Add Project
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Achievements Section */}
-              <div className="card mb-4">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="mb-0">
-                    <FaTrophy className="me-2" />
-                    Achievements
-                  </h5>
-                </div>
-                <div className="card-body">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className="mb-4 p-3 border rounded">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h6 className="mb-0">Achievement {index + 1}</h6>
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleRemoveAchievement(index)}
-                            disabled={!isEditing}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                      <div className="row g-3">
-                        <div className="col-md-6">
-                          <label className="form-label">Type</label>
-                          <select
-                            className="form-select"
-                            value={achievement.type}
-                            onChange={(e) => handleAchievementChange(index, 'type', e.target.value)}
-                            disabled={!isEditing}
-                          >
-                            <option value="">Select Type</option>
-                            <option value="sports">Sports</option>
-                            <option value="awards">Awards</option>
-                            <option value="academic">Academic</option>
-                            <option value="events">Events</option>
-                          </select>
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Title</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={achievement.title}
-                            onChange={(e) => handleAchievementChange(index, 'title', e.target.value)}
-                            placeholder="Achievement Title"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-12">
-                          <label className="form-label">Description</label>
-                          <textarea
-                            className="form-control"
-                            value={achievement.description}
-                            onChange={(e) => handleAchievementChange(index, 'description', e.target.value)}
-                            placeholder="Description"
-                            rows="3"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Date</label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="date"
-                            value={achievement.date}
-                            onChange={(e) => handleAchievementChange(index, 'date', e.target.value)}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">Organization</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={achievement.organization}
-                            onChange={(e) => handleAchievementChange(index, 'organization', e.target.value)}
-                            placeholder="Organization"
-                            disabled={!isEditing}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      onClick={() => handleAddAchievement()}
-                    >
-                      <FaPlus className="me-2" />
-                      Add Achievement
-                    </button>
-                  )}
                 </div>
               </div>
 
