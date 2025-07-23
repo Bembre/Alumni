@@ -606,7 +606,19 @@ const AlumniProfile = () => {
                       <button className="btn btn-sm btn-danger" onClick={() => handleArrayRemove('education', idx)}><FaTrash /></button>
           </div>
                     <div className="row g-2">
-                      <div className="col-md-3"><input className="form-control" placeholder="Type" value={edu.type} onChange={e => handleArrayChange('education', idx, 'type', e.target.value)} /></div>
+                      <div className="col-md-3">
+                        <select
+                          className="form-control"
+                          value={edu.type}
+                          onChange={e => handleArrayChange('education', idx, 'type', e.target.value)}
+                        >
+                          <option value="">Select Type</option>
+                          <option value="10th">10th</option>
+                          <option value="12th">12th</option>
+                          <option value="Graduation">Graduation</option>
+                          <option value="Post Graduation">Post Graduation</option>
+                        </select>
+                      </div>
                       <div className="col-md-3"><input className="form-control" placeholder="Institution" value={edu.institution} onChange={e => handleArrayChange('education', idx, 'institution', e.target.value)} /></div>
                       <div className="col-md-3"><input className="form-control" placeholder="Board/University" value={edu.board} onChange={e => handleArrayChange('education', idx, 'board', e.target.value)} /></div>
                       <div className="col-md-3"><input className="form-control" placeholder="Year" value={edu.year} onChange={e => handleArrayChange('education', idx, 'year', e.target.value)} /></div>
