@@ -291,8 +291,6 @@ const StudentDashboard = () => {
     }
   };
 
-  console.log('Skills state:', skills);
-
   function validateProfile(data) {
     // DOB
     const dob = new Date(data.dob);

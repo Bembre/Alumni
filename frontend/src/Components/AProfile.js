@@ -555,9 +555,21 @@ const AlumniProfile = () => {
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span className="fw-bold">Achievement {idx + 1}</span>
                       <button className="btn btn-sm btn-danger" onClick={() => handleArrayRemove('achievements', idx)}><FaTrash /></button>
-          </div>
+                    </div>
                     <div className="row g-2">
-                      <div className="col-md-4"><input className="form-control" placeholder="Type" value={ach.type} onChange={e => handleArrayChange('achievements', idx, 'type', e.target.value)} /></div>
+                      <div className="col-md-4">
+                        <select
+                          className="form-control"
+                          value={ach.type}
+                          onChange={e => handleArrayChange('achievements', idx, 'type', e.target.value)}
+                        >
+                          <option value="">Select Type</option>
+                          <option value="sports">Sports</option>
+                          <option value="awards">Awards</option>
+                          <option value="academic">Academic</option>
+                          <option value="events">Events</option>
+                        </select>
+                      </div>
                       <div className="col-md-4"><input className="form-control" placeholder="Title" value={ach.title} onChange={e => handleArrayChange('achievements', idx, 'title', e.target.value)} /></div>
                       <div className="col-md-4"><input className="form-control" placeholder="Date" value={ach.date} onChange={e => handleArrayChange('achievements', idx, 'date', e.target.value)} /></div>
                       <div className="col-12"><input className="form-control" placeholder="Organization" value={ach.organization} onChange={e => handleArrayChange('achievements', idx, 'organization', e.target.value)} /></div>
